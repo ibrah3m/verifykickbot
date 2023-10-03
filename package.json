@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "chromium": "^3.0.3",
+    "cloudflare-scraper": "^2.0.0",
+    "csv-stringify": "^6.4.2",
+    "discord.js": "^14.13.0",
+    "node-fetch": "^3.3.1",
+    "node-libcurl": "^3.0.0",
+    "puppeteer": "^20.1.1",
+    "query-string": "^8.1.0",
+    "tls": "^0.0.1"
+  }
+}
