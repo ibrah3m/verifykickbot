@@ -280,6 +280,7 @@ client.on('ready', () => {
 
 // Event handler for when a message is received
 client.on('messageCreate', async (message) => {
+  const user = await message.author.fetch(); // Fetch the user object
   if (message.author.bot) return;
   console.log(message.content)
   // Check if the message starts with the !verify command
@@ -291,11 +292,11 @@ client.on('messageCreate', async (message) => {
     const userId = message.author.id;
     const errorMessage = await updateUserData(userId, verificationCode, '', false);
     if (errorMessage) {
-      message.reply('Error updating user data:' + errorMessage);
+     user.send('Error updating user data:' + errorMessage);
       return;
     }
     // Reply to the user with the verification code
-    message.reply(`Your verification code is: ${verificationCode} \n 
+   user.send(`Your verification code is: ${verificationCode} \n 
         https://kick.com/iqd964/chatroom
         `);
 
@@ -313,7 +314,7 @@ client.on('messageCreate', async (message) => {
       // Update user data with the received information and set is_linked to true
       const errorMessage = await updateUserData(userId, verificationCode, username, isLinked);
       if (errorMessage) {
-        message.reply('Error updating user data:' + errorMessage);
+       user.send('Error updating user data:' + errorMessage);
         return;
       }
 
@@ -339,11 +340,11 @@ client.on('messageCreate', async (message) => {
 
       }
       // Reply to the user that their account is now linked
-      message.reply(`Your account is now linked with username '${username}'.`);
+     user.send(`Your account is now linked with username '${username}'.`);
 
     } else {
       // Handle the case where the API response does not contain the expected data
-      message.reply('Unable to verify your account. Please try again later.');
+     user.send('Unable to verify your account. Please try again later.');
     }
   }
 });
