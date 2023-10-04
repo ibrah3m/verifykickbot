@@ -339,8 +339,11 @@ client.on('ready', () => {
 
 // Event handler for when a message is received
 client.on('messageCreate', async (message) => {
-  const user = await message.author.fetch(); // Fetch the user object
   if (message.author.bot) return;
+
+  
+  const user = await message.author.fetch(); // Fetch the user object
+
   console.log(message.content)
   // Check if the message starts with the !verify command
   if (message.content.startsWith('!verify')) {
