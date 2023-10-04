@@ -352,10 +352,11 @@ client.on('messageCreate', async (message) => {
     const errorMessage = await updateUserData(userId, verificationCode, '', false);
     if (errorMessage) {
      user.send('Error updating user data:' + errorMessage);
+
       return;
     }
     // Reply to the user with the verification code
-   user.send(` Your verification code is: ${verificationCode} and expire in 5min \n https://kick.com/iqd964/chatroom
+    user.send(` Your verification code is: ${verificationCode} and expire in 5min \n https://kick.com/iqd964/chatroom
         `);
 
     // Check the API endpoint for the verification code and username
