@@ -130,6 +130,102 @@ async function createEmptyFileIfNotExists(filename) {
     console.log(`Created empty file: ${filename}`);
   }
 }
+async function deleteUserDataByIndex(indexToDelete) {
+  try {
+
+    // Read existing user data from the CSV
+    const data = await fsPromises.readFile(csv_filename, 'utf-8');
+    const rows = data.trim().split('\n');
+    const headers = rows.shift().split(',');
+
+    const userRecords = rows.map((row) => {
+      const values = row.split(',');
+      const userRecord = {};
+
+      headers.forEach((header, index) => {
+        userRecord[header] = values[index];
+      });
+
+      return userRecord;
+    });
+
+    // Check if the provided index is within the valid range
+    if (indexToDelete >= 0 && indexToDelete < userRecords.length) {
+      // Delete the record at the specified index
+      userRecords.splice(indexToDelete, 1);
+
+      // Prepare the updated data as an array of objects
+      const updatedData = userRecords;
+
+      // Define the column headers
+      const columns = ['discordUserId', 'verificationCode', 'otherPlatformUsername', 'isLinked'];
+
+      // Use csv-stringify to convert the updated data to CSV format with headers
+      const csvData = await stringify(updatedData, {
+        columns,
+        header: true,
+      });
+
+      // Write the updated CSV data back to the file
+      await fsPromises.writeFile(csv_filename, csvData);
+
+      console.log('User data deleted successfully.');
+    } else {
+      console.error('Invalid index provided for deletion.');
+    }
+  } catch (error) {
+    console.error('Error deleting user data:', error.message);
+    return error.message; // Return the error message
+  }
+}
+async function editUserDataByIndex(indexToEdit, updatedData) {
+  try {
+
+    // Read existing user data from the CSV
+    const data = await fsPromises.readFile(csv_filename, 'utf-8');
+    const rows = data.trim().split('\n');
+    const headers = rows.shift().split(',');
+
+    const userRecords = rows.map((row) => {
+      const values = row.split(',');
+      const userRecord = {};
+
+      headers.forEach((header, index) => {
+        userRecord[header] = values[index];
+      });
+
+      return userRecord;
+    });
+
+    // Check if the provided index is within the valid range
+    if (indexToEdit >= 0 && indexToEdit < userRecords.length) {
+      // Update the user record at the specified index with the provided data
+      userRecords[indexToEdit] = updatedData;
+
+      // Prepare the updated data as an array of objects
+      const updatedUserData = userRecords;
+
+      // Define the column headers
+      const columns = ['discordUserId', 'verificationCode', 'otherPlatformUsername', 'isLinked'];
+
+      // Use csv-stringify to convert the updated data to CSV format with headers
+      const csvData = await stringify(updatedUserData, {
+        columns,
+        header: true,
+      });
+
+      // Write the updated CSV data back to the file
+      await fsPromises.writeFile(csv_filename, csvData);
+
+      console.log('User data edited successfully.');
+    } else {
+      console.error('Invalid index provided for editing.');
+    }
+  } catch (error) {
+    console.error('Error editing user data:', error.message);
+    return error.message; // Return the error message
+  }
+}
 
 async function updateUserData(discordUserId, verificationCode, otherPlatformUsername, isLinked) {
   try {
@@ -151,34 +247,21 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
       return userRecord;
     });
 
-    // Find an existing record with the same platform username
-    const existingUserRecord = userRecords.find(
-      (userRecord) => userRecord.otherPlatformUsername === otherPlatformUsername
-    );
-    // Find an existing record with the same discord id
+
     const existingdiscordRecord = userRecords.find(
       (userRecord) => userRecord.discordUserId === discordUserId
     );
+    
+   // Find an existing record with the same platform username
+   const existingUserRecord = userRecords.find(
+    (userRecord) => userRecord.otherPlatformUsername === 'IQD964'
+  );
 
     
-    if (existingdiscordRecord.otherPlatformUsername ) {
+    if(existingdiscordRecord?.discordUserId == undefined ){
 
-        throw new Error('This discord account is already linked to a kick account.');
-      }
-    
-    if (existingUserRecord) {
-      // Check if the existing record is already linked to a different Discord account
-      if (existingUserRecord.discordUserId !== discordUserId) {
-        throw new Error('This kick username is already linked to a different Discord account.');
-      }
-      
-
-      // Update the existing record
-      existingUserRecord.verificationCode = verificationCode;
-      existingUserRecord.isLinked = isLinked.toString();
-    } else {
-      // Create a new user record
-      const newUserRecord = {
+       // Create a new user record
+       const newUserRecord = {
         discordUserId: discordUserId,
         verificationCode: verificationCode,
         otherPlatformUsername: otherPlatformUsername,
@@ -186,7 +269,35 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
       };
 
       userRecords.push(newUserRecord);
+      console.log('this user not recorded ')
     }
+    else if(existingdiscordRecord.otherPlatformUsername == ''){
+       console.log('this user recorded but still not linked')
+       if (existingUserRecord?.otherPlatformUsername == otherPlatformUsername ){
+        //here should we remove the previous recorded information with that discord id
+        deleteUserDataByIndex(userRecords.indexOf(existingdiscordRecord))
+        
+        throw new Error('This this kick account is already linked.',);
+  
+      } 
+       if(isLinked){
+        //if its true then update cuz this means everything done well 
+        const updatedData = {
+          discordUserId: discordUserId,
+          verificationCode: verificationCode,
+          otherPlatformUsername: otherPlatformUsername,
+          isLinked: isLinked.toString(),
+        };
+        editUserDataByIndex(userRecords.indexOf(existingdiscordRecord) ,updatedData)
+       }
+    }
+    else if (existingdiscordRecord.otherPlatformUsername !== ''){
+      console.log('this user recorded and linked')
+      throw new Error('This  discord account is already linked.');
+
+
+    }
+
 
     // Prepare the updated data as an array of objects
     const updatedData = userRecords;
@@ -211,69 +322,17 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
 }
 
 
-
-// async function updateUserData(discordUserId, verificationCode, otherPlatformUsername, isLinked) {
-//   try {
-//     createEmptyFileIfNotExists(csv_filename)
-//     // Read existing user data from the CSV
-//     const data = await fsPromises.readFile(csv_filename, 'utf-8');
-//     const rows = data.trim().split('\n');
-//     const headers = rows.shift().split(',');
-
-//     const userRecords = rows.map((row) => {
-//       const values = row.split(',');
-//       const userRecord = {};
-
-//       headers.forEach((header, index) => {
-//         userRecord[header] = values[index];
-//       });
-
-//       if (userRecord.discordUserId === discordUserId) {
-//         userRecord.verificationCode = verificationCode;
-//         userRecord.otherPlatformUsername = otherPlatformUsername;
-//         userRecord.isLinked = isLinked.toString();
-//       }
-
-//       return userRecord;
-//     });
-
-//     // Check if the user exists; if not, add a new user record
-//     const existingUserIndex = userRecords.findIndex(user => user.discordUserId === discordUserId);
-//     if (existingUserIndex === -1) {
-//       userRecords.push({
-//         discordUserId: discordUserId,
-//         verificationCode: verificationCode,
-//         otherPlatformUsername: otherPlatformUsername,
-//         isLinked: isLinked.toString(),
-//       });
-//     }
-
-//     // Prepare the updated data as an array of objects
-//     const updatedData = userRecords;
-
-//     // Define the column headers
-//     const columns = ['discordUserId', 'verificationCode', 'otherPlatformUsername', 'isLinked'];
-
-//     // Use csv-stringify to convert the updated data to CSV format with headers
-//     const csvData = await stringify(updatedData, {
-//       columns,
-//       header: true
-//     });
-
-//     // Write the updated CSV data back to the file
-//     await fsPromises.writeFile(csv_filename, csvData);
-
-//     console.log('User data updated successfully.');
-//   } catch (error) {
-//     console.error('Error updating user data:', error);
-//   }
-// }
-
-
-// Example usage:
-// updateUserData('123456', '987654', 'user123', true);
-
 // Event handler for when the bot is ready
+
+
+
+
+
+
+
+
+
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
