@@ -355,8 +355,7 @@ client.on('messageCreate', async (message) => {
       return;
     }
     // Reply to the user with the verification code
-   user.send(`Your verification code is: ${verificationCode} \n 
-        https://kick.com/iqd964/chatroom
+   user.send(` Your verification code is: ${verificationCode} and expire in 5min \n https://kick.com/iqd964/chatroom
         `);
 
     // Check the API endpoint for the verification code and username
@@ -414,7 +413,7 @@ async function fetchVerificationDataFromAPI(verificationCode) {
   try {
 
     const totalTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-    const fetchInterval = 5 * 1000; // 30 seconds in milliseconds
+    const fetchInterval = Math.floor(Math.random() * 15) * 1000; // seconds in milliseconds
     let elapsedTime = 0;
     let foundCode = false; // Flag to indicate if a code match is found
 
