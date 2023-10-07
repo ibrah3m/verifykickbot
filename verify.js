@@ -17,6 +17,7 @@ import {
 } from 'node-libcurl';
 
 import initCycleTLS from 'cycletls';
+import tough from 'tough-cookie';
 
 
 // function fetchDataFromAPI() {
@@ -67,18 +68,44 @@ import initCycleTLS from 'cycletls';
 //   });
 // }
 
+
+
+async function processCookies(response, url, cookieJar) {
+  if (response.headers["Set-Cookie"] instanceof Array) {
+    response.headers["Set-Cookie"].map(
+      async (cookieString) => await cookieJar.setCookie(cookieString, url)
+    );
+  } else {
+    await cookieJar.setCookie(response.headers["Set-Cookie"], url);
+  }
+}
+const Cookie = tough.Cookie;
 async function fetchDataFromAPI(){
 
 
   // Initiate CycleTLS
   const cycleTLS = await initCycleTLS();
-
+  const cookieJar = new tough.CookieJar();
+  const firstResponse = await cycleTLS.get(
+    "https://kick.com/api/v2/channels/243615/messages",
+    {
+      disableRedirect: true,
+    }
+  );
+   // Now use the processCookies function to add the cookies from the response headers to the cookie jar
+   await processCookies(
+    firstResponse,
+    "https://kick.com/api/v2/channels/243615/messages",
+    cookieJar
+  );
   // Send request
   const apiResponse = await cycleTLS('https://kick.com/api/v2/channels/243615/messages', {
     body: '',
     ja3: '771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-51-57-47-53-10,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0',
     userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0',
     headers: {
+        cookie: await cookieJar.getCookieString("https://kick.com/api/v2/channels/243615/messages"),
+
     
         "cache-control": "no-cache",
         "upgrade-insecure-requests": "1",
