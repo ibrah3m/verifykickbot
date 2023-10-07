@@ -446,7 +446,6 @@ async function fetchVerificationDataFromAPI(verificationCode) {
 
       try {
         const response = await fetchDataFromAPI();
-
         if (response.status === 200) {
           console.log('fetch msg')
 
@@ -474,6 +473,11 @@ async function fetchVerificationDataFromAPI(verificationCode) {
 
             }
           })
+        }else {
+
+          console.log(response)
+
+
         }
         // Continue with your logic using 'username' and 'isLinked'
       } catch (error) {
