@@ -16,52 +16,73 @@ import {
   CurlSslVersion
 } from 'node-libcurl';
 
-function fetchDataFromAPI() {
-  return new Promise((resolve, reject) => {
-    const headers = [
-      // 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"',
-      // 'sec-ch-ua-mobile: ?0',
-      'sec-ch-ua-platform: "Windows"',
-      'Upgrade-Insecure-Requests: 1',
-      'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36',
-      'Accept: application/json, text/plain, */*',
-      'Sec-Fetch-Site: none',
-      'Sec-Fetch-Mode: navigate',
-      'Sec-Fetch-User: ?1',
-      'Sec-Fetch-Dest: document',
-      'Accept-Encoding : gzip, deflate, br',
-      'Accept-Language : en-US',
-    ];
+import initCycleTLS from 'cycletls';
 
-    const curl = new Curl();
-    curl.setOpt(Curl.option.URL, 'https://kick.com/api/v2/channels/243615/messages');
-    curl.setOpt(Curl.option.HTTPHEADER, headers);
-    curl.setOpt(Curl.option.HTTP_VERSION, CurlHttpVersion.V2_0);
-    curl.setOpt(
-      Curl.option.SSL_CIPHER_LIST,
-      'TLS-AES-128-GCM-SHA256,TLS-CHACHA20-POLY1305-SHA256,TLS-AES-256-GCM-SHA384,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,ECDHE-RSA-AES128-SHA,ECDHE-RSA-AES256-SHA,AES128-GCM-SHA256,AES256-GCM-SHA384,AES128-SHA,AES256-SHA'
-    );
-    curl.setOpt(Curl.option.SSLVERSION, CurlSslVersion.TlsV1_2);
-    curl.setOpt(Curl.option.SSL_ENABLE_NPN, 0);
-    curl.setOpt(Curl.option.SSL_ENABLE_ALPN, 0);
-    curl.setOpt(Curl.option.SSH_COMPRESSION, 'brotli');
 
-    curl.on('end', function (status, data, headers) {
-      if (status === 200) {
+// function fetchDataFromAPI() {
+//   return new Promise((resolve, reject) => {
+//     const headers = [
+//       // 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"',
+//       // 'sec-ch-ua-mobile: ?0',
+//       'sec-ch-ua-platform: "Windows"',
+//       'Upgrade-Insecure-Requests: 1',
+//       'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36',
+//       'Accept: application/json, text/plain, */*',
+//       'Sec-Fetch-Site: none',
+//       'Sec-Fetch-Mode: navigate',
+//       'Sec-Fetch-User: ?1',
+//       'Sec-Fetch-Dest: document',
+//       'Accept-Encoding : gzip, deflate, br',
+//       'Accept-Language : en-US',
+//     ];
 
-        resolve({
-          status,
-          data
-        });
-      } else {
-        reject(new Error(`API request failed with status code: ${status}`));
-      }
+//     const curl = new Curl();
+//     curl.setOpt(Curl.option.URL, 'https://kick.com/api/v2/channels/243615/messages');
+//     curl.setOpt(Curl.option.HTTPHEADER, headers);
+//     curl.setOpt(Curl.option.HTTP_VERSION, CurlHttpVersion.V2_0);
+//     curl.setOpt(
+//       Curl.option.SSL_CIPHER_LIST,
+//       'TLS-AES-128-GCM-SHA256,TLS-CHACHA20-POLY1305-SHA256,TLS-AES-256-GCM-SHA384,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,ECDHE-RSA-AES128-SHA,ECDHE-RSA-AES256-SHA,AES128-GCM-SHA256,AES256-GCM-SHA384,AES128-SHA,AES256-SHA'
+//     );
+//     curl.setOpt(Curl.option.SSLVERSION, CurlSslVersion.TlsV1_2);
+//     curl.setOpt(Curl.option.SSL_ENABLE_NPN, 0);
+//     curl.setOpt(Curl.option.SSL_ENABLE_ALPN, 0);
+//     curl.setOpt(Curl.option.SSH_COMPRESSION, 'brotli');
 
-      this.close();
-    });
+//     curl.on('end', function (status, data, headers) {
+//       if (status === 200) {
 
-    curl.perform();
-  });
+//         resolve({
+//           status,
+//           data
+//         });
+//       } else {
+//         reject(new Error(`API request failed with status code: ${status}`));
+//       }
+
+//       this.close();
+//     });
+
+//     curl.perform();
+//   });
+// }
+
+async function fetchDataFromAPI(){
+
+
+  // Initiate CycleTLS
+  const cycleTLS = await initCycleTLS();
+
+  // Send request
+   const apiResponse = await cycleTLS('https://kick.com/api/v2/channels/243615/messages', {
+    body: '',
+    ja3: '771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-51-57-47-53-10,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0',
+    userAgent: 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0',
+  }, 'get');
+
+  // Cleanly exit CycleTLS
+  cycleTLS.exit();
+  return apiResponse;
 }
 
 const csv_filename = 'user_data.csv';
@@ -430,9 +451,8 @@ async function fetchVerificationDataFromAPI(verificationCode) {
           console.log('fetch msg')
 
 
-          const data = JSON.parse(response.data);
-
-          const messages = data.data.messages;
+          
+          const messages = response.body.data.messages;
           // console.log('response',data)
 
           messages.forEach((message) => {
