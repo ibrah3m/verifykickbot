@@ -20,56 +20,6 @@ import initCycleTLS from 'cycletls';
 import tough from 'tough-cookie';
 
 
-// function fetchDataFromAPI() {
-//   return new Promise((resolve, reject) => {
-//     const headers = [
-//       // 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"',
-//       // 'sec-ch-ua-mobile: ?0',
-//       'sec-ch-ua-platform: "Windows"',
-//       'Upgrade-Insecure-Requests: 1',
-//       'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36',
-//       'Accept: application/json, text/plain, */*',
-//       'Sec-Fetch-Site: none',
-//       'Sec-Fetch-Mode: navigate',
-//       'Sec-Fetch-User: ?1',
-//       'Sec-Fetch-Dest: document',
-//       'Accept-Encoding : gzip, deflate, br',
-//       'Accept-Language : en-US',
-//     ];
-
-//     const curl = new Curl();
-//     curl.setOpt(Curl.option.URL, 'https://kick.com/api/v2/channels/243615/messages');
-//     curl.setOpt(Curl.option.HTTPHEADER, headers);
-//     curl.setOpt(Curl.option.HTTP_VERSION, CurlHttpVersion.V2_0);
-//     curl.setOpt(
-//       Curl.option.SSL_CIPHER_LIST,
-//       'TLS-AES-128-GCM-SHA256,TLS-CHACHA20-POLY1305-SHA256,TLS-AES-256-GCM-SHA384,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,ECDHE-RSA-AES128-SHA,ECDHE-RSA-AES256-SHA,AES128-GCM-SHA256,AES256-GCM-SHA384,AES128-SHA,AES256-SHA'
-//     );
-//     curl.setOpt(Curl.option.SSLVERSION, CurlSslVersion.TlsV1_2);
-//     curl.setOpt(Curl.option.SSL_ENABLE_NPN, 0);
-//     curl.setOpt(Curl.option.SSL_ENABLE_ALPN, 0);
-//     curl.setOpt(Curl.option.SSH_COMPRESSION, 'brotli');
-
-//     curl.on('end', function (status, data, headers) {
-//       if (status === 200) {
-
-//         resolve({
-//           status,
-//           data
-//         });
-//       } else {
-//         reject(new Error(`API request failed with status code: ${status}`));
-//       }
-
-//       this.close();
-//     });
-
-//     curl.perform();
-//   });
-// }
-
-
-
 async function processCookies(response, url, cookieJar) {
   if (response.headers["Set-Cookie"] instanceof Array) {
     response.headers["Set-Cookie"].map(
@@ -80,45 +30,60 @@ async function processCookies(response, url, cookieJar) {
   }
 }
 const Cookie = tough.Cookie;
-async function fetchDataFromAPI(){
-
-
+async function fetchDataFromAPI() {
   // Initiate CycleTLS
   const cycleTLS = await initCycleTLS();
-  const cookieJar = new tough.CookieJar();
-  const firstResponse = await cycleTLS.get(
-    "https://kick.com/api/v2/channels/243615/messages",
-    {
-      disableRedirect: true,
-    }
-  );
-   // Now use the processCookies function to add the cookies from the response headers to the cookie jar
-   await processCookies(
-    firstResponse,
-    "https://kick.com/api/v2/channels/243615/messages",
-    cookieJar
-  );
+
+  // Original 'ja3' value
+  const originalJa3 = '771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0';
+
+  // Split the originalJa3 string by commas to work on individual parts
+  const parts = originalJa3.split(',');
+
+  // Split the third part (the one you want to randomize) by hyphens
+  const thirdPart = parts[2].split('-');
+
+  // Remove the '0' from the thirdPart
+  const zeroPart = thirdPart.shift();
+
+  // Shuffle the remaining numbers within the thirdPart
+  for (let i = 0; i < thirdPart.length; i++) {
+    const j = Math.floor(Math.random() * thirdPart.length);
+    [thirdPart[i], thirdPart[j]] = [thirdPart[j], thirdPart[i]];
+  }
+
+  // Join the shuffled third part back together with hyphens and add the '0-' at the beginning
+  const shuffledThirdPart = `0-${thirdPart.join('-')}`;
+
+  // Reconstruct the original string with the shuffled part
+  const shuffledJa3 = `${parts[0]},${parts[1]},${shuffledThirdPart},${parts[3]},${parts[4]}`;
+
+
+  // Configure the r
   // Send request
   const apiResponse = await cycleTLS('https://kick.com/api/v2/channels/243615/messages', {
     body: '',
-    ja3: '771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,16-17513-27-23-5-13-65037-43-0-18-65281-51-11-45-35-10,29-23-24,0',
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
+    ja3: shuffledJa3,
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
     headers: {
-        cookie: await cookieJar.getCookieString("https://kick.com/api/v2/channels/243615/messages"),
 
-    
-        'cache-control': 'no-cache',
-        'upgrade-insecure-requests': '1',
-        'Accept':' application/json, text/plain, */*',
-        'sec-fetch-site':' none',
-        'sec-fetch-mode':' navigate',
-        'sec-fetch-user':' ?1',
-        'sec-fetch-dest':' document',
-        'accept-encoding':' gzip, deflate, br',
-        'accept-language':' de,en-US;q=0.7,en;q=0.3',
-        'pragma':' no-cache',
-        'te':' trailers',
-    }   
+      "sec-ch-ua": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "Windows",
+      "upgrade-insecure-requests": "1",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "sec-fetch-site": "same-origin",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-user": "?1",
+      "sec-fetch-dest": "document",
+      "referer": "https://tls.peet.ws/",
+      "accept-encoding": "gzip, deflate, br",
+      "accept-language": "en-US,en;q=0.9,ar;q=0.8,es;q=0.7"
+    }
+    ,
+    headerOrder: ["method", "authority", "scheme", "path"]
+
   }, 'get');
 
   // Cleanly exit CycleTLS
