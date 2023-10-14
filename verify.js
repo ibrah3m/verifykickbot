@@ -10,11 +10,6 @@ import {
   GatewayIntentBits
 } from 'discord.js';
 
-import {
-  Curl,
-  CurlHttpVersion,
-  CurlSslVersion
-} from 'node-libcurl';
 
 import initCycleTLS from 'cycletls';
 import tough from 'tough-cookie';
@@ -281,7 +276,7 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
     
    // Find an existing record with the same platform username
    const existingUserRecord = userRecords.find(
-    (userRecord) => userRecord.otherPlatformUsername === 'IQD964'
+    (userRecord) => userRecord.otherPlatformUsername === otherPlatformUsername
   );
 
     
