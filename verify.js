@@ -67,12 +67,15 @@ async function fetchDataFromAPI() {
       "sec-ch-ua-platform": "Windows",
       "upgrade-insecure-requests": "1",
       "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept": "application/json, text/plain, */*",
       "sec-fetch-site": "same-origin",
-      "sec-fetch-mode": "navigate",
+      "sec-fetch-mode": "cors",
       "sec-fetch-user": "?1",
-      "sec-fetch-dest": "document",
-      "referer": "https://tls.peet.ws/",
+      "sec-fetch-dest": "empty",
+      "Sec-Ch-Ua-Mobile":"?0",
+      "Sec-Ch-Ua-Platform": "Windows",
+
+      "referer": "https://kick.com/iqd964/",
       "accept-encoding": "gzip, deflate, br",
       "accept-language": "en-US,en;q=0.9,ar;q=0.8,es;q=0.7"
     }
