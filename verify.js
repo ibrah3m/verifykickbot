@@ -39,7 +39,7 @@ async function fetchDataFromAPI() {
   const thirdPart = parts[2].split('-');
 
   // Remove the '0' from the thirdPart
-  const zeroPart = thirdPart.shift();
+  // const zeroPart = thirdPart.shift();
 
   // Shuffle the remaining numbers within the thirdPart
   for (let i = 0; i < thirdPart.length; i++) {
@@ -48,7 +48,8 @@ async function fetchDataFromAPI() {
   }
 
   // Join the shuffled third part back together with hyphens and add the '0-' at the beginning
-  const shuffledThirdPart = `0-${thirdPart.join('-')}`;
+  // const shuffledThirdPart = `0-${thirdPart.join('-')}`;
+  const shuffledThirdPart = `${thirdPart.join('-')}`;
 
   // Reconstruct the original string with the shuffled part
   const shuffledJa3 = `${parts[0]},${parts[1]},${shuffledThirdPart},${parts[3]},${parts[4]}`;
