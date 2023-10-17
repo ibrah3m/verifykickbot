@@ -108,7 +108,7 @@ async function fetchDataFromAPI() {
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
       headers: headers,
       headerOrder: ["method", "authority", "scheme", "path"]
-    }, 'get').exit();
+    }, 'get');
   }
 
 
