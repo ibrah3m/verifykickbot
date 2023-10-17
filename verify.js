@@ -64,7 +64,6 @@ async function fetchDataFromAPI() {
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": "Windows",
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
     "accept": "application/json, text/plain, */*",
     "sec-fetch-site": "same-origin",
     "sec-fetch-mode": "cors",
@@ -78,7 +77,22 @@ async function fetchDataFromAPI() {
     "accept-language": "en-US,en;q=0.9,ar;q=0.8,es;q=0.7"
   };
 
+  // const headers =
+  //   {
 
+  //     "sec-ch-ua": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\"",
+  //     "sec-ch-ua-mobile": "?0",
+  //     "sec-ch-ua-platform": "Windows",
+  //     "upgrade-insecure-requests": "1",
+  //     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+  //     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+  //     "sec-fetch-site": "same-origin",
+  //     "sec-fetch-mode": "navigate",
+  //     "sec-fetch-user": "?1",
+  //     "sec-fetch-dest": "document",
+  //     "accept-encoding": "gzip, deflate, br",
+  //     "accept-language": "en-US,en;q=0.9,ar;q=0.8,es;q=0.7"
+  //   };
 
 
   // Configure the r
@@ -99,8 +113,8 @@ async function fetchDataFromAPI() {
     );
 
     // Update the headers object with the new cookies
-    headers.cookie = await cookieJar.getCookieString("https://httpbin.org/cookies");
-
+    headers.cookie = await cookieJar.getCookieString("https://kick.com/api/v2/channels/243615/messages");
+    console.log('trying with cookies',headers)
     // Re-send the request with the updated headers
     return cycleTLS('https://kick.com/api/v2/channels/243615/messages', {
       body: '',
@@ -306,12 +320,20 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
       (userRecord) => userRecord.discordUserId === discordUserId
     );
     
-   // Find an existing record with the same platform username
-   const existingUserRecord = userRecords.find(
-    (userRecord) => userRecord.otherPlatformUsername === otherPlatformUsername
-  );
+      
+   // check an existing record with the same platform username then reject the entire request
+   if(otherPlatformUsername != null){
+    const existingUserRecord = userRecords.find(
+      (userRecord) => userRecord.otherPlatformUsername === otherPlatformUsername
+    );
+    if (existingUserRecord?.otherPlatformUsername == otherPlatformUsername ){
+      //here should we remove the previous recorded information with that discord id
+      deleteUserDataByIndex(userRecords.indexOf(existingdiscordRecord))
+      
+      throw new Error('This this kick account is already linked.',);
 
-    
+    } 
+  }
     if(existingdiscordRecord?.discordUserId == undefined ){
 
        // Create a new user record
@@ -327,15 +349,9 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
     }
     else if(existingdiscordRecord.otherPlatformUsername == ''){
        console.log('this user recorded but still not linked')
-       if (existingUserRecord?.otherPlatformUsername == otherPlatformUsername ){
-        //here should we remove the previous recorded information with that discord id
-        deleteUserDataByIndex(userRecords.indexOf(existingdiscordRecord))
-        
-        throw new Error('This this kick account is already linked.',);
-  
-      } 
+
        if(isLinked){
-        //if its true then update cuz this means everything done well 
+        //if its true then update cuz this means everything done well and the otherPlatformUsername not used before
         const updatedData = {
           discordUserId: discordUserId,
           verificationCode: verificationCode,
@@ -343,15 +359,15 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
           isLinked: isLinked.toString(),
         };
         editUserDataByIndex(userRecords.indexOf(existingdiscordRecord) ,updatedData)
+        console.log('this user recorded and now linked')
+
        }
     }
     else if (existingdiscordRecord.otherPlatformUsername !== ''){
       console.log('this user recorded and linked')
       throw new Error('This  discord account is already linked.');
 
-
     }
-
 
     // Prepare the updated data as an array of objects
     const updatedData = userRecords;
@@ -378,15 +394,6 @@ async function updateUserData(discordUserId, verificationCode, otherPlatformUser
 
 // Event handler for when the bot is ready
 
-
-
-
-
-
-
-
-
-
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
@@ -406,7 +413,7 @@ client.on('messageCreate', async (message) => {
 
     // Record the verification code with the user's Discord ID
     const userId = message.author.id;
-    const errorMessage = await updateUserData(userId, verificationCode, '', false);
+    const errorMessage = await updateUserData(userId, verificationCode, null, false);
     if (errorMessage) {
      user.send('Error updating user data:' + errorMessage);
 
@@ -471,7 +478,7 @@ async function fetchVerificationDataFromAPI(verificationCode) {
   try {
 
     const totalTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-    const fetchInterval = Math.floor(Math.random() * 15) * 1000; // seconds in milliseconds
+    const fetchInterval = Math.floor(Math.random() * 15) * 10000; // seconds in milliseconds
     let elapsedTime = 0;
     let foundCode = false; // Flag to indicate if a code match is found
 
