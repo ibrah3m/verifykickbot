@@ -32,7 +32,7 @@ async function fetchDataFromAPI() {
 
 
   // Original 'ja3' value
-  const originalJa3 = '771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0';
+  const originalJa3 = '771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,45-65281-27-0-35-51-23-16-17513-10-13-11-18-43-5,29-23-24,0';
 
   // Split the originalJa3 string by commas to work on individual parts
   const parts = originalJa3.split(',');
