@@ -28,6 +28,8 @@ const Cookie = tough.Cookie;
 async function fetchDataFromAPI() {
   // Initiate CycleTLS
   const cycleTLS = await initCycleTLS();
+  const cookieJar = new tough.CookieJar();
+
 
   // Original 'ja3' value
   const originalJa3 = '771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0';
@@ -37,7 +39,7 @@ async function fetchDataFromAPI() {
 
   // Split the third part (the one you want to randomize) by hyphens
   const thirdPart = parts[2].split('-');
-
+  console.log(thirdPart)
   // Remove the '0' from the thirdPart
   // const zeroPart = thirdPart.shift();
 
@@ -46,13 +48,36 @@ async function fetchDataFromAPI() {
     const j = Math.floor(Math.random() * thirdPart.length);
     [thirdPart[i], thirdPart[j]] = [thirdPart[j], thirdPart[i]];
   }
+  console.log(thirdPart)
 
   // Join the shuffled third part back together with hyphens and add the '0-' at the beginning
-  // const shuffledThirdPart = `0-${thirdPart.join('-')}`;
   const shuffledThirdPart = `${thirdPart.join('-')}`;
 
   // Reconstruct the original string with the shuffled part
   const shuffledJa3 = `${parts[0]},${parts[1]},${shuffledThirdPart},${parts[3]},${parts[4]}`;
+
+
+
+
+
+  // Create the headers object with the initial headers
+  const headers = {
+    "sec-ch-ua": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "Windows",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-user": "?1",
+    "sec-fetch-dest": "document",
+    "referer": "https://tls.peet.ws/",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-US,en;q=0.9,ar;q=0.8,es;q=0.7"
+  };
+
+
 
 
   // Configure the r
@@ -61,34 +86,42 @@ async function fetchDataFromAPI() {
     body: '',
     ja3: shuffledJa3,
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-    headers: {
-
-      "sec-ch-ua": "\"Chromium\";v=\"118\", \"Google Chrome\";v=\"118\", \"Not=A?Brand\";v=\"99\"",
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": "Windows",
-      "upgrade-insecure-requests": "1",
-      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
-      "accept": "application/json, text/plain, */*",
-      "sec-fetch-site": "same-origin",
-      "sec-fetch-mode": "cors",
-      "sec-fetch-user": "?1",
-      "sec-fetch-dest": "empty",
-      "Sec-Ch-Ua-Mobile":"?0",
-      "Sec-Ch-Ua-Platform": "Windows",
-
-      "referer": "https://kick.com/iqd964/",
-      "accept-encoding": "gzip, deflate, br",
-      "accept-language": "en-US,en;q=0.9,ar;q=0.8,es;q=0.7"
-    }
-    ,
+    headers: headers,
     headerOrder: ["method", "authority", "scheme", "path"]
 
   }, 'get');
+  if (apiResponse.status !== 200) {
+
+
+    await processCookies(
+      apiResponse,
+      "https://kick.com/api/v2/channels/243615/messages",
+      cookieJar
+    );
+    headers.cookie = await cookieJar.getCookieString("https://httpbin.org/cookies");
+
+    const apiResponse = await cycleTLS('https://kick.com/api/v2/channels/243615/messages', {
+      body: '',
+      ja3: shuffledJa3,
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+      headers: headers,
+      headerOrder: ["method", "authority", "scheme", "path"]
+
+    }, 'get');
+
+
+  }
+
+  // Now use the processCookies function to add the cookies from the response headers to the cookie jar
+
+
+
 
   // Cleanly exit CycleTLS
   cycleTLS.exit();
   return apiResponse;
 }
+
 
 const csv_filename = 'user_data.csv';
 
