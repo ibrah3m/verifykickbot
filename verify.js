@@ -498,7 +498,7 @@ async function fetchVerificationDataFromAPI(verificationCode) {
             const content = message.content;
 
             // Use regex to find a 6-digit code in the message content
-            const codeMatch = content.match(/!verify\s+(\d{6})(?:\s|$)/);
+            const codeMatch = content.match(/!verify\s+(\d{6})/);
             const codeString = codeMatch[1]; // Assuming the matched code is in the first position of the array
             if (!codeMatch || !codeMatch[1]) {
               console.log("No valid !verify followed by a 6-digit code found in the content. Skipping to the next message.");
