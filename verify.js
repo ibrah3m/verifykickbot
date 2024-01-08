@@ -498,8 +498,8 @@ async function fetchVerificationDataFromAPI(verificationCode) {
             const content = message.content;
 
             // Use regex to find a 6-digit code in the message content
-            const codeMatch = content.match(/!verify\s+(\d{6})(\s|$)/);
-            const codeString = codeMatch[1]; // Assuming the matched code is in the first position of the array
+            const codeMatch = content.match(/!verify\s+(\d{6})(?:\s|$)/);
+            const codeString = codeMatch[2]; // Assuming the matched code is in the first position of the array
             // Converting the matched code from string to integer
             const codeInteger = parseInt(codeString, 10);
             if (codeInteger == verificationCode) {
