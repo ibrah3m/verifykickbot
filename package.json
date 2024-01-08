@@ -4,14 +4,10 @@
               "start": "node verify.js"
            },
   "dependencies": {
-    "buffer": "^6.0.3",
-    "chromium": "^3.0.3",
-
     "csv-stringify": "^6.4.2",
     "cycletls": "^1.0.21",
     "discord.js": "^14.13.0",
     "query-string": "^8.1.0",
-    "tls": "^0.0.1",
     "tough-cookie": "^4.1.3"
   }
 }
