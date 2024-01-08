@@ -420,7 +420,7 @@ client.on('messageCreate', async (message) => {
       return;
     }
     // Reply to the user with the verification code
-    user.send(` Your verification code is: ${verificationCode} and expire in 5min \n https://kick.com/iqd964/chatroom
+    user.send(` Your verification code is: !verify ${verificationCode} and expire in 5min \n https://kick.com/iqd964/chatroom
         `);
 
     // Check the API endpoint for the verification code and username
@@ -498,9 +498,11 @@ async function fetchVerificationDataFromAPI(verificationCode) {
             const content = message.content;
 
             // Use regex to find a 6-digit code in the message content
-            const codeMatch = content.match(/\b\d{6}\b/);
-
-            if (codeMatch == verificationCode) {
+            const codeMatch = content.match(/!verify\s+(\d{6})(\s|$)/);
+            const codeString = codeMatch[1]; // Assuming the matched code is in the first position of the array
+            // Converting the matched code from string to integer
+            const codeInteger = parseInt(codeString, 10);
+            if (codeInteger == verificationCode) {
               console.log('code match done')
               foundCode = true; // Set the flag to exit the loop
 
@@ -537,4 +539,4 @@ async function fetchVerificationDataFromAPI(verificationCode) {
 }
 
 // Log in using your bot token
-client.login('MTAyMjkxNTExMjM0NjA3NTIxNg.G2bHXT.58J3Px-RckqCS9Pq-y35AWhceDJ-ZXl8QJxbqA');
+client.login(process.env.BOT_TOKEN);
