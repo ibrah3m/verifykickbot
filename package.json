@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
               "start": "node verify.js"
-           }
+           },
   "dependencies": {
     "buffer": "^6.0.3",
     "chromium": "^3.0.3",
