@@ -499,12 +499,15 @@ async function fetchVerificationDataFromAPI(verificationCode) {
 
             // Use regex to find a 6-digit code in the message content
             const codeMatch = content.match(/!verify\s+(\d{6})/);
-            const codeString = codeMatch[1]; // Assuming the matched code is in the first position of the array
+            
             if (!codeMatch || !codeMatch[1]) {
+              
+
               console.log("No valid !verify followed by a 6-digit code found in the content. Skipping to the next message.");
               // Skip to the next iteration of the loop
               return; // This will move to the next message in the 'messages' array
             }
+            const codeString = codeMatch[1]; // Assuming the matched code is in the first position of the array
             // Converting the matched code from string to integer
             const codeInteger = parseInt(codeString, 10);
             if (codeInteger == verificationCode) {
