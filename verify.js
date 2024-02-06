@@ -420,7 +420,7 @@ client.on('messageCreate', async (message) => {
       return;
     }
     // Reply to the user with the verification code
-    user.send(` Your verification code is: !verify ${verificationCode} and expire in 5min \n https://kick.com/iqd964/chatroom
+    user.send(` Your verification code is: !verify ${verificationCode} and expire in 5min \n https://kick.com/iqd/chatroom
         `);
 
     // Check the API endpoint for the verification code and username
