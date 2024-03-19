@@ -418,7 +418,7 @@ client.on('messageCreate', async (message) => {
             const errorMessage = await updateUserData(userId, verificationCode, null, false);
             if (errorMessage) {
                 try {
-                    user.send('Error updating user data:' + errorMessage);
+                    await user.send('Error updating user data:' + errorMessage);
                     console.log("Message sent successfully.");
                 } catch (error) {
                     if (error.code === 50007) {
@@ -436,7 +436,7 @@ client.on('messageCreate', async (message) => {
 
             try {
                 // Reply to the user with the verification code
-                user.send(` خلال يجب عليك نسخ الكود مع الامر ولصقة في الرابط الاسفل ومدة الصلاحية 5 دقائق يجب عدم طلب كود اخر 
+                await user.send(` خلال يجب عليك نسخ الكود مع الامر ولصقة في الرابط الاسفل ومدة الصلاحية 5 دقائق يجب عدم طلب كود اخر 
        \n !verify ${verificationCode} 
         \n https://kick.com/iqd/chatroom `);
                 console.log("Message sent successfully.");
@@ -463,7 +463,18 @@ client.on('messageCreate', async (message) => {
                 // Update user data with the received information and set is_linked to true
                 const errorMessage = await updateUserData(userId, verificationCode, username, isLinked);
                 if (errorMessage) {
-                    user.send('Error updating user data:' + errorMessage);
+                    try {
+                         await user.send('Error updating user data:' + errorMessage);
+                        console.log("Message sent successfully.");
+                    } catch (error) {
+                        if (error.code === 50007) {
+                            console.log("Cannot send messages to this user. They may have disabled direct messages or blocked the bot.");
+                            // Handle the error gracefully, inform the user, or perform alternative actions.
+                        } else {
+                            console.error("An error occurred while sending the message:", error);
+                            // Handle other errors as needed.
+                        }
+                    }
                     return;
                 }
 
@@ -488,13 +499,24 @@ client.on('messageCreate', async (message) => {
                     // Change the nickname (username) of the member
 
                 }
+                try {
+                     await user.send(`Your account is now linked with username '${username}'.`);
+                    console.log("Message sent successfully.");
+                } catch (error) {
+                    if (error.code === 50007) {
+                        console.log("Cannot send messages to this user. They may have disabled direct messages or blocked the bot.");
+                        // Handle the error gracefully, inform the user, or perform alternative actions.
+                    } else {
+                        console.error("An error occurred while sending the message:", error);
+                        // Handle other errors as needed.
+                    }
+                }
                 // Reply to the user that their account is now linked
-                user.send(`Your account is now linked with username '${username}'.`);
 
             } else {
                 try {
                     // Handle the case where the API response does not contain the expected data
-                    user.send('Unable to verify your account. Please try again later.');
+                    await await user.send('Unable to verify your account. Please try again later.');
                     console.log("Message sent successfully.");
                 } catch (error) {
                     if (error.code === 50007) {
