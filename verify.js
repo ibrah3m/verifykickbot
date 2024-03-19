@@ -9,6 +9,7 @@ import {
   Client,
   GatewayIntentBits
 } from 'discord.js';
+import 'dotenv/config';
 
 
 import initCycleTLS from 'cycletls';
@@ -408,6 +409,7 @@ client.on('messageCreate', async (message) => {
   console.log(message.content)
   // Check if the message starts with the !verify command
   if (message.content.startsWith('!verify')) {
+    try {
     // Generate a random 6-digit verification code
     const verificationCode = generateVerificationCode();
 
@@ -420,7 +422,7 @@ client.on('messageCreate', async (message) => {
       return;
     }
     // Reply to the user with the verification code
-    user.send(`يجب عليك نسخ الكود مع الامر ولصقة في الشات ومدة الصلاحية 5 دقائق ثم يجب طلب كود اخر 
+    user.send(` خلال يجب عليك نسخ الكود مع الامر ولصقة في الرابط الاسفل ومدة الصلاحية 5 دقائق يجب عدم طلب كود اخر 
  \n !verify ${verificationCode} 
   \n https://kick.com/iqd/chatroom `);
 
@@ -469,6 +471,10 @@ client.on('messageCreate', async (message) => {
     } else {
       // Handle the case where the API response does not contain the expected data
      user.send('Unable to verify your account. Please try again later.');
+    }
+    } catch (error) {
+      console.error('Error processing verification command:', error);
+      user.send('An error occurred while processing your verification request. Please try again later.');
     }
   }
 });
